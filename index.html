@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slots Signup</title>
+<style>
+body { font-family: Arial; background: linear-gradient(135deg,#1b2735,#090a0f); color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
+.signup-container { background:#1c1c1c; padding:30px; border-radius:12px; width:100%; max-width:400px; box-shadow:0 0 20px rgba(255,255,255,0.1); }
+h2 { text-align:center; margin-bottom:20px; color:#ffd700; }
+input { width:100%; padding:12px; margin:10px 0; border:none; border-radius:8px; background:#2c2c2c; color:#fff; }
+button { width:100%; padding:12px; margin-top:15px; border:none; border-radius:8px; background:#ffd700; color:#000; font-weight:bold; cursor:pointer; }
+button:hover { background:#ffbf00; }
+.message { margin-top:15px; text-align:center; font-size:14px; }
+.password-strength { font-size:12px; margin-top:-8px; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<div class="signup-container">
+<h2>Slots Signup</h2>
+<form id="signupForm">
+<input type="text" id="username" placeholder="Username" required>
+<input type="email" id="email" placeholder="Email" required>
+<input type="password" id="password" placeholder="Password" required>
+<div class="password-strength" id="passwordStrength"></div>
+<button type="submit">Sign Up</button>
+<div class="message" id="message"></div>
+</form>
+</div>
+
+<script>
+const form = document.getElementById('signupForm');
+const message = document.getElementById('message');
+const passwordStrength = document.getElementById('passwordStrength');
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwu0d7i5gDi9fu7wUjgcyr6rzf-C9MgusaegmYaKfypjBaidR1alWF3wP_J9agQ9hg/exec'; // replace with your Apps Script URL
+
+// Password strength checker
+const passwordInput = document.getElementById('password');
+passwordInput.addEventListener('input', () => {
+  const val = passwordInput.value;
+  let strength = '';
+  if(val.length < 6) {
+    strength = 'Weak 🔴';
+    passwordStrength.style.color = '#ff4d4d';
+  } else if(val.match(/[A-Z]/) && val.match(/[0-9]/) && val.length >= 6) {
+    strength = 'Strong 🟢';
+    passwordStrength.style.color = '#00ff7f';
+  } else {
+    strength = 'Medium 🟡';
+    passwordStrength.style.color = '#ffff00';
+  }
+  passwordStrength.textContent = `Password Strength: ${strength}`;
+});
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById('username').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+  if(!username || !email || !password){
+    message.style.color='#ff4d4d';
+    message.textContent='Please fill all fields!';
+    return;
+  }
+
+  if(!emailPattern.test(email)){
+    message.style.color='#ff4d4d';
+    message.textContent='Enter a valid email!';
+    return;
+  }
+
+  if(password.length < 6){
+    message.style.color='#ff4d4d';
+    message.textContent='Password must be at least 6 characters!';
+    return;
+  }
+
+  fetch(scriptURL,{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:`username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+  }).then(()=>{
+    message.style.color='#00ff7f';
+    message.textContent=`Signup successful! Welcome, ${username} 🎰`;
+    form.reset();
+    passwordStrength.textContent='';
+    setTimeout(()=>{ window.location.href='welcome.html'; },2000);
+  }).catch(err=>{
+    message.style.color='#ff4d4d';
+    message.textContent='Signup failed. Try again!';
+  });
+});
+</script>
+
+</body>
+</html>
